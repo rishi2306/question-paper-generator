@@ -10,4 +10,4 @@ Step 5: Run the code
 
 NOTE: The code only works for option 1. Making question papers on the basis of given number of questions and option 3 i.e Making question papers on the basis of number of questions and marks and doesn't work for option 2 i.e making question papers only on the basis of given total marks.
 
-- Intermediate python coder, Rishi
+- Rishi
