@@ -4,7 +4,7 @@ import itertools
 qbank = open("/Users/grishichakravarthy/Desktop/qbank.txt", "r") #opening questionbank
 qs = qbank.readlines() #storing qbank questions in a list
 qslen = len(qs) #number of questions in question bank
-qinp = int(input("Do you want to make question papers based on: \n1.Number of questions \n2.Total marks\n3.Number of questions and marks"))
+qinp = int(input("Do you want to make question papers based on: \n1.Number of questions \n2.Total marks\n3.Number of questions and marks\n--->Enter choice:"))
 
 #Question - mark dictionary
 qmdict = {}
@@ -17,10 +17,11 @@ for q in qs:
         qmark = 0
     qmdict[q.split("{")[0]] = qmark
 #print(qmdict)
-qmdictkeys = list(qmdict.keys())
-mlist = list(qmdict.values())
+qmdictkeys = list(qmdict.keys()) #List of all questions
+mlist = list(qmdict.values()) #List of all marks
 
-def comberqmbp(): #for making question papers based on marks and question numbers
+#Start of comberqmbp() for option 3 - making qpaps based on marks and number of questions
+def comberqmbp(): #COMBINATION MAKER - for making question papers based on marks and number of questions
     lst = []
     mlist = list(qmdict.values())
 
@@ -41,11 +42,18 @@ def comberqmbp(): #for making question papers based on marks and question number
     global qbps
     qbps = list(set(l1))
 
-    count = 1
-    for qblueprint in qbps:
-        print(count,qblueprint)
-        count+=1
-
+    if len(qbps) == 0:
+        #print("No valid combinations can be made")
+        return False
+    else:
+        '''count = 1
+        for qblueprint in qbps:
+            print(count,qblueprint)
+            count+=1'''
+        return True
+#End of comberqmbp() for option 3 - making qpaps based on marks and number of questions
+#---------------------------------
+#Start of qbnum() - making question papers based on number of questions(option1)
 def qbpnum():
     qpapnum = int(input("How many question papers do you want?:")) #number of questionpapers
 
@@ -53,27 +61,28 @@ def qbpnum():
         print("Paper", count)
         qnum = int(input("How many questions do you want the paper"+str(count)+" to have?: ")) #no. of questions in each paper
         qpap = open("/Users/grishichakravarthy/Desktop/questionpapers/qpaper"+str(count)+".txt", "a+") #making/opening question papers
-    
-        for i in range(qnum):
-            num = random.randint(0,qnum-1) #randomly selecting a question
-            if qs[num] not in qpap:
-                q = qs[num]
-                qpap.write(q)#writing question into question paper
-        qpap.close()#closing question paper - will go back to for loop and repeat for other qpapers
 
-    qbank.close()#closes questionbank
+        s = 0
 
+        for x in range(qnum):
+            while s!=len(qmdictkeys):
+                q = random.choice(qmdictkeys)
+                qpap.seek(0)
+                if q not in qpap.read():
+                    qpap.write(q+"\n")
+                    s+=1
+                    break
+                else:
+                    pass
 
-
-#Question paper making based on marks
+        qpap.close()
+        qbank.close()
+#End of qbnum() - making question papers based on number of questions(option 1)
+#------------------------
+#Start of qbnummarks i.e making question paper based on number of questions and marks(option 3)
 def qbpnummarks():
 
     qpapnum = int(input("How many question papers do you want?:"))
-    
-
-    #insert invalid combinations, try again - thing   
-
-    
 
     for i in range (1,qpapnum+1):
         global qpap
@@ -85,48 +94,40 @@ def qbpnummarks():
         global qn
         qn = int(input("How many questions should be in the question paper?:"))
         print()
+
         comberqmbp()
-        
-        bpinput = int(input("Enter appropriate blue print for your question paper:"))
-        print("A", m, "mark question paper with", qn, "questions in the ",qbps[bpinput-1], "pattern is being generated...")
-        print("A", m, "mark question paper with", qn, "questions in the ",qbps[bpinput-1], "pattern has been generated successfully!")
-        print()
 
+        if comberqmbp():
+            count = 1
+            for qblueprint in qbps:
+                print(count, qblueprint)
+                count += 1
+            bpinput = int(input("Enter appropriate blue print for your question paper:"))
+            print("A", m, "mark question paper with", qn, "questions in the ",qbps[bpinput-1], "pattern is being generated...")
+            print("A", m, "mark question paper with", qn, "questions in the ",qbps[bpinput-1], "pattern has been generated successfully!")
+            print()
 
-        for mark in qbps[bpinput-1]:
-            while True:
-                global q
-                q = random.choice(qmdictkeys)
-                if qmdict[q] == mark:
-                    if q not in qpap:
-                        qpap.write(q+"\n")
+            for mark in qbps[bpinput-1]:
+                while True:
+                    q = random.choice(qmdictkeys)
+                    qpap.seek(0)
+                    if (qmdict[q] == mark) and (q not in qpap.read()):
+                        qpap.write(q+'\n')
                         break
                     else:
-                        continue
-                else:
-                    continue
-        qpap.write(" ")
-        qpap.write((str(m)+"marks"))
+                        pass
+            qbank.close()
+            qpap.close()
 
-        
-        '''for mark in qbps[bpinput-1]:
-            while True:
-                global q
-                q = random.choice(qmdictkeys)
-                if qmdict[q] == mark and q not in qpap:
-                    qpap.write(q+"\n")
-                    break
-                else:
-                    continue'''
-
-    
-        qbank.close()
-        qpap.close()
+        else:
+            print("No valid combinations can be made")
+            qbank.close()
+            qpap.close()
+#-----------------------------
+#End of qbnummarks i.e making question paper based on number of questions and marks(option 3)
 
 if qinp == 1:
     qbpnum()
 if qinp == 3:
     qbpnummarks()
-
     
-
