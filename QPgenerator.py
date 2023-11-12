@@ -25,6 +25,7 @@ def comberqmbp(): #COMBINATION MAKER - for making question papers based on marks
     lst = []
     mlist = list(qmdict.values())
 
+
     while True:
         try:
             for combo in itertools.combinations(mlist, qn):
@@ -46,13 +47,11 @@ def comberqmbp(): #COMBINATION MAKER - for making question papers based on marks
         #print("No valid combinations can be made")
         return False
     else:
-        '''count = 1
-        for qblueprint in qbps:
-            print(count,qblueprint)
-            count+=1'''
         return True
 #End of comberqmbp() for option 3 - making qpaps based on marks and number of questions
-#---------------------------------
+
+#------------------------
+
 #Start of qbnum() - making question papers based on number of questions(option1)
 def qbpnum():
     qpapnum = int(input("How many question papers do you want?:")) #number of questionpapers
@@ -77,9 +76,52 @@ def qbpnum():
 
         qpap.close()
         qbank.close()
+
 #End of qbnum() - making question papers based on number of questions(option 1)
+
 #------------------------
-#Start of qbnummarks i.e making question paper based on number of questions and marks(option 3)
+
+#Start of qbpmarks() - making question papers based on total marks(option 2)
+def qbpmarks():
+
+    qpapnum = int(input("How many question papers do you want?:"))  # number of questionpapers
+
+    for count in range(1, qpapnum+1):
+        print("Paper", count)
+        marks = int(input("How many marks do you want your paper to be for?: "))
+        bpslst = []
+        while True:
+            try:
+                for size in range(1, len(mlist) + 1):
+                    for combo in itertools.combinations(mlist, size):
+                        if sum(combo) == marks and sorted(combo) not in bpslst:
+                            bpslst.append(sorted(combo))
+                break
+            except:
+                break
+        if len(bpslst)==0:
+            print("No question papers can be generated - Entered total marks exceeds the maximum marks of the question bank")
+        else:
+            qpap = open("/Users/grishichakravarthy/Desktop/questionpapers/qpaper" + str(count) + ".txt","a+")  # making/opening question papers
+            bp = random.choice(bpslst)
+            for mark in bp:
+                while True:
+                    q = random.choice(qmdictkeys)
+                    qpap.seek(0)
+                    if (qmdict[q] == mark) and (q not in qpap.read()):
+                        qpap.write(q + '\n')
+                        break
+                    else:
+                        pass
+            qpap.close()
+            qbank.close()
+
+
+#End of qbpmarks() - making question papers based on total marks(option 2)
+
+#------------------------
+
+#Start of qbnummarks() - making question paper based on number of questions and marks(option 3)
 def qbpnummarks():
 
     qpapnum = int(input("How many question papers do you want?:"))
@@ -123,11 +165,15 @@ def qbpnummarks():
             print("No valid combinations can be made")
             qbank.close()
             qpap.close()
-#-----------------------------
+#------------------------
 #End of qbnummarks i.e making question paper based on number of questions and marks(option 3)
 
 if qinp == 1:
     qbpnum()
-if qinp == 3:
+elif qinp == 2:
+    qbpmarks()
+elif qinp == 3:
     qbpnummarks()
+else:
+    print("Invalid input, try again with valid input")
     
