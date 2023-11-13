@@ -59,23 +59,26 @@ def qbpnum():
     for count in range(1, qpapnum+1):
         print("Paper", count)
         qnum = int(input("How many questions do you want the paper"+str(count)+" to have?: ")) #no. of questions in each paper
-        qpap = open("/Users/grishichakravarthy/Desktop/questionpapers/qpaper"+str(count)+".txt", "a+") #making/opening question papers
 
         s = 0
+        if qnum<=len(qs):
+            qpap = open("/Users/grishichakravarthy/Desktop/questionpapers/qpaper" + str(count) + ".txt", "a+")  # making/opening question papers
+            for x in range(qnum):
+                while s!=len(qmdictkeys):
+                    q = random.choice(qmdictkeys)
+                    qpap.seek(0)
+                    if q not in qpap.read():
+                        qpap.write(q+"\n")
+                        s+=1
+                        break
+                    else:
+                        pass
+            qpap.close()
+            qbank.close()
+        else:
+            print("Number of questions in questions bank is low")
 
-        for x in range(qnum):
-            while s!=len(qmdictkeys):
-                q = random.choice(qmdictkeys)
-                qpap.seek(0)
-                if q not in qpap.read():
-                    qpap.write(q+"\n")
-                    s+=1
-                    break
-                else:
-                    pass
 
-        qpap.close()
-        qbank.close()
 
 #End of qbnum() - making question papers based on number of questions(option 1)
 
@@ -104,15 +107,27 @@ def qbpmarks():
         else:
             qpap = open("/Users/grishichakravarthy/Desktop/questionpapers/qpaper" + str(count) + ".txt","a+")  # making/opening question papers
             bp = random.choice(bpslst)
-            for mark in bp:
-                while True:
-                    q = random.choice(qmdictkeys)
-                    qpap.seek(0)
-                    if (qmdict[q] == mark) and (q not in qpap.read()):
-                        qpap.write(q + '\n')
-                        break
-                    else:
-                        pass
+            s = list(set(bp))
+            L = []
+            #print("BLUE PRINT -", bp)
+            for unqm in s:
+                lst = []
+                for i in range(bp.count(unqm)):
+                    lst.append(unqm)
+                L.append(lst)
+            sec = ord('A')
+            for unqmlist in L:
+                qpap.write(str("Section" + str(chr(sec) + "-" + str(unqmlist[0]) + "marker(s)\n")))
+                for m in unqmlist:
+                    while True:
+                        q = random.choice(qmdictkeys)
+                        qpap.seek(0)
+                        if (qmdict[q] == m) and (q not in qpap.read()):
+                            qpap.write(q + '\n')
+                            break
+                        else:
+                            pass
+                sec+=1
             qpap.close()
             qbank.close()
 
@@ -127,8 +142,7 @@ def qbpnummarks():
     qpapnum = int(input("How many question papers do you want?:"))
 
     for i in range (1,qpapnum+1):
-        global qpap
-        qpap = open("/Users/grishichakravarthy/Desktop/questionpapers/qpaper"+str(i)+".txt", "a+")
+
         print("Paper", i)
         print()
         global m
@@ -140,6 +154,9 @@ def qbpnummarks():
         comberqmbp()
 
         if comberqmbp():
+            global qpap
+            qpap = open("/Users/grishichakravarthy/Desktop/questionpapers/qpaper" + str(i) + ".txt", "a+")
+
             count = 1
             for qblueprint in qbps:
                 print(count, qblueprint)
@@ -149,22 +166,35 @@ def qbpnummarks():
             print("A", m, "mark question paper with", qn, "questions in the ",qbps[bpinput-1], "pattern has been generated successfully!")
             print()
 
-            for mark in qbps[bpinput-1]:
-                while True:
-                    q = random.choice(qmdictkeys)
-                    qpap.seek(0)
-                    if (qmdict[q] == mark) and (q not in qpap.read()):
-                        qpap.write(q+'\n')
-                        break
-                    else:
-                        pass
+            bp = (qbps[bpinput-1])
+
+            s = list(set(bp))
+            L = []
+
+            for unqm in s:
+                lst = []
+                for i in range(bp.count(unqm)):
+                    lst.append(unqm)
+                L.append(lst)
+            sec = ord('A')
+            for unqmlist in L:
+                qpap.write(str("Section" + str(chr(sec) + "-" + str(unqmlist[0]) + "marker(s)\n")))
+                for mark in unqmlist:
+                    while True:
+                        q = random.choice(qmdictkeys)
+                        qpap.seek(0)
+                        if (qmdict[q] == mark) and (q not in qpap.read()):
+                            qpap.write(q+'\n')
+                            break
+                        else:
+                            pass
+                sec+=1
+
             qbank.close()
             qpap.close()
 
         else:
             print("No valid combinations can be made")
-            qbank.close()
-            qpap.close()
 #------------------------
 #End of qbnummarks i.e making question paper based on number of questions and marks(option 3)
 
