@@ -1,23 +1,39 @@
+import mysql.connector as co
+con = co.connect(host = "localhost", user = "root",database = "www",password = "www")
+if con.is_connected():
+    print("Connected")
+else:
+    print("Not connected")
+cur = con.cursor()
+#--------------------------------
 import random
 import itertools
 from operator import itemgetter
 
-qbank = open("/Users/grishichakravarthy/Desktop/qbank.txt", "r") #opening questionbank
-qs = qbank.readlines() #storing qbank questions in a list
-qslen = len(qs) #number of questions in question bank
-qinp = int(input("Do you want to make question papers based on: \n1.Number of questions \n2.Total marks\n3.Number of questions and marks\n--->Enter choice:"))
+#qbank = open("/Users/grishichakravarthy/Desktop/qbank.txt", "r") #opening questionbank
+#qs = qbank.readlines() #storing qbank questions in a list
+#qslen = len(qs) #number of questions in question bank
+qinp = int(input("Do you want to make question papers based on: \n1.Number of questions \n2.Total marks\n3.Number of questions and marks\n4. CREATE QUESTION BANK\n--->Enter choice:"))
+
+
+def qbankmaker():
+    ch = 'y'
+    while ch == 'y':
+        q = input("Enter question:")
+        m = int(input("Enter number of marks for this question:"))
+        cur.execute("INSERT INTO pysql (question, marks) VALUES (%s, %s)", (q, m))
+        ch = input("Do you want to continue? Y or N?:")
+        con.commit()
 
 #Question - mark dictionary
+cur.execute("select * from pysql")
+data = cur.fetchall()
+#print("Data:", data)
 qmdict = {}
-for q in qs:
-    try:
-        qm = q.split("{M:")
-        qm2 = qm[1].split("}")
-        qmark = int(qm2[0])
-    except:
-        qmark = 0
-    qmdict[q.split("{")[0]] = qmark
-#print(qmdict)
+for item in data:
+    qmdict[item[0]] = item[1]
+#print("qmdict:", qmdict)
+
 qmdictkeys = list(qmdict.keys()) #List of all questions
 mlist = list(qmdict.values()) #List of all marks
 
@@ -62,7 +78,7 @@ def qbpnum():
         qnum = int(input("How many questions do you want the paper"+str(count)+" to have?: ")) #no. of questions in each paper
 
         s = 0
-        if qnum<=len(qs):
+        if qnum<=len(qmdictkeys):
 
             qpap = open("/Users/grishichakravarthy/Desktop/questionpapers/qpaper" + str(count) + ".txt", "a+")  # making/opening question papers
             qdict = {}
@@ -113,7 +129,6 @@ def qbpnum():
 
 
             qpap.close()
-            qbank.close()
 
         else:
             print("Number of questions in questions bank is low")
@@ -122,7 +137,7 @@ def qbpnum():
 
 #End of qbnum() - making question papers based on number of questions(option 1)
 
-#------------------------
+#------------------------'''
 
 #Start of qbpmarks() - making question papers based on total marks(option 2)
 def qbpmarks():
@@ -175,7 +190,7 @@ def qbpmarks():
                 sec+=1
                 qpap.write("---------------------\n")
             qpap.close()
-            qbank.close()
+            
 
 
 #End of qbpmarks() - making question papers based on total marks(option 2)
@@ -244,7 +259,6 @@ def qbpnummarks():
                 qpap.write("---------------------\n")
             print("A", m, "mark question paper with", qn, "questions in the ", qbps[bpinput - 1], "pattern has been generated successfully!")
 
-            qbank.close()
             qpap.close()
 
         else:
@@ -258,6 +272,8 @@ elif qinp == 2:
     qbpmarks()
 elif qinp == 3:
     qbpnummarks()
+elif qinp == 4:
+    qbankmaker()
 else:
     print("Invalid input, try again with valid input")
     
