@@ -1,41 +1,29 @@
 import mysql.connector as co
-con = co.connect(host = "localhost", user = "root",database = "www",password = "www")
+import random
+import itertools
+from operator import itemgetter
+import tabulate
+
+user = input("Enter username for SQL:")
+password = input("Enter password:")
+database = input("Enter database name: ")
+con = co.connect(user = user,password = password, host = 'localhost', database = database)
 if con.is_connected():
     print("Connected")
 else:
     print("Not connected")
 cur = con.cursor()
 #--------------------------------
-import random
-import itertools
-from operator import itemgetter
-
-#qbank = open("/Users/grishichakravarthy/Desktop/qbank.txt", "r") #opening questionbank
-#qs = qbank.readlines() #storing qbank questions in a list
-#qslen = len(qs) #number of questions in question bank
-qinp = int(input("Do you want to make question papers based on: \n1.Number of questions \n2.Total marks\n3.Number of questions and marks\n4. CREATE QUESTION BANK\n--->Enter choice:"))
-
 
 def qbankmaker():
     ch = 'y'
-    while ch == 'y':
+    while ch == 'y' or ch == 'Y':
         q = input("Enter question:")
         m = int(input("Enter number of marks for this question:"))
-        cur.execute("INSERT INTO pysql (question, marks) VALUES (%s, %s)", (q, m))
-        ch = input("Do you want to continue? Y or N?:")
+        #cur.execute("USE {}".format(database))
+        cur.execute("INSERT INTO {} (question, marks) VALUES (%s, %s)".format(tname), (q, m))
         con.commit()
-
-#Question - mark dictionary
-cur.execute("select * from pysql")
-data = cur.fetchall()
-#print("Data:", data)
-qmdict = {}
-for item in data:
-    qmdict[item[0]] = item[1]
-#print("qmdict:", qmdict)
-
-qmdictkeys = list(qmdict.keys()) #List of all questions
-mlist = list(qmdict.values()) #List of all marks
+        ch = input("Do you want to continue? Y or N?:")
 
 #Start of comberqmbp() for option 3 - making qpaps based on marks and number of questions
 def comberqmbp(): #COMBINATION MAKER - for making question papers based on marks and number of questions
@@ -265,15 +253,93 @@ def qbpnummarks():
             print("No valid combinations can be made")
 #------------------------
 #End of qbnummarks i.e making question paper based on number of questions and marks(option 3)
+#------------------------
 
-if qinp == 1:
-    qbpnum()
-elif qinp == 2:
-    qbpmarks()
-elif qinp == 3:
-    qbpnummarks()
-elif qinp == 4:
-    qbankmaker()
+mainput = int(input("Do you want to make question paper(1) or question bank?(2):"))
+if mainput == 1:
+
+    # Question - mark dictionary
+    cur.execute("use {}".format(database))
+    cur.execute("show tables")
+    data = cur.fetchall()
+    print("Tables:")
+    count = 1
+    for table in data:
+        print(count, ".", table[0])
+        count += 1
+    con.commit()
+    tinp = int(input("Choose number of table which you want to select"))
+    tname = data[tinp - 1][0]
+
+    cur.execute("select * from {}".format(tname))
+    questionsdata = cur.fetchall()
+    print(tabulate(questionsdata))
+    # print("Data:", data)
+    qmdict = {}
+    for item in questionsdata:
+        qmdict[item[0]] = item[1]
+    # print("qmdict:", qmdict)
+    qmdictkeys = list(qmdict.keys())  # List of all questions
+    mlist = list(qmdict.values())
+
+
+    qinp = int(input("Do you want to make question papers based on: \n1.Number of questions \n2.Total marks\n3.Number of questions and marks\n--->Enter choice:"))
+
+    if qinp == 1:
+        qbpnum()
+    elif qinp == 2:
+        qbpmarks()
+    elif qinp == 3:
+        qbpnummarks()
+
+elif mainput == 2:
+    tablesubject = int(input("Do you want to work on an existing table(1) or new table?(2):"))
+
+    if tablesubject == 1:
+
+        cur.execute("use {}".format(database))
+        cur.execute("show tables")
+        data = cur.fetchall()
+        print("Tables:")
+        count = 1
+        for table in data:
+            print(count,".", table[0])
+            count+=1
+        con.commit()
+        tinp = int(input("Choose number of table which you want to select"))
+        tname = data[tinp-1][0]
+        cur.execute("select * from {}".format(tname))
+        qs = cur.fetchall()
+        print(tabulate.tabulate(qs))
+
+
+        changesinp = input("Do you want to make any changes to the table?(Y/N): ")
+        if changesinp == 'Y' or changesinp == 'y':
+            qbankmaker()
+            cur.execute("select * from {}".format(tname))
+            qs = cur.fetchall()
+            print(type(qs))
+            print(tabulate.tabulate(qs))
+            print("Question bank has been successfully updated")
+        elif changesinp == 'N' or changesinp == 'n':
+            print("You have chosen to not make any changes.")
+
+    elif tablesubject == 2:
+
+        tname = input("Enter table name(DO NOT USE SPACES) in which you want to make changes:")
+        cur.execute("use {}".format(database))
+        cur.execute("Create table {} (question varchar(100), marks int)".format(tname))
+        con.commit()
+        print("Question bank i.e the table {} has been successfully created".format(tname))
+        qbankmaker()
+        cur.execute("select * from {}".format(tname))
+        qs = cur.fetchall()
+        con.commit()
+        print(tabulate.tabulate(qs))
+        print("Question bank i.e the table {} has been successfully updated".format(tname))
+
+    else:
+        print("Enter valid input")
+
 else:
     print("Invalid input, try again with valid input")
-    
