@@ -273,7 +273,7 @@ if mainput == 1:
 
     cur.execute("select * from {}".format(tname))
     questionsdata = cur.fetchall()
-    print(tabulate(questionsdata))
+    print(tabulate.tabulate(questionsdata))
     # print("Data:", data)
     qmdict = {}
     for item in questionsdata:
